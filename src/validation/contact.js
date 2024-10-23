@@ -1,0 +1,18 @@
+import Joi from "joi";
+
+export const contactPostSchema = Joi.object({
+    name: Joi.string().min(3).max(20).required(),
+    phoneNumber: Joi.string().required(),
+    email: Joi.string(),
+    isFavourite: Joi.boolean().default(false),
+    contactType: Joi.string().valid('work', 'home', 'personal').default('personal').required(),
+});
+
+export const contactPatchSchema = Joi.object({
+    name: Joi.string().min(3).max(20),
+    phoneNumber: Joi.string(),
+    email: Joi.string(),
+    isFavourite: Joi.boolean(),
+    contactType: Joi.string().valid('work', 'home', 'personal'),
+});
+
