@@ -4,7 +4,10 @@ import cors from 'cors';
 import dotenv from "dotenv";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { notFoundHandler } from "./middlewares/notFoundHandler.js";
-import contactsRouter from "./routers/contacts.js";
+// import contactsRouter from "./routers/contacts.js";
+// import authRoutes from "./routers/auth.js";
+import router from "./routers/index.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -21,12 +24,10 @@ export const setupServer = () => {
         }),
     );
 
+    app.use(cookieParser());
     app.use(cors());
-
-    app.use('/contacts', contactsRouter);
-
+    app.use('/', router);
     app.use(notFoundHandler);
-
     app.use(errorHandler);
 
     app.listen(PORT, () => {
