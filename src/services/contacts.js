@@ -27,16 +27,16 @@ export const getAllContacts = async ({ perPage, page, sortBy = "_id", sortOrder 
     };
 };
 
-export const getContactById = (contactId, userId) => Contact.findById({ _id: contactId, userId });
+export const getContactById = (contactId, userId) => Contact.findOne({ _id: contactId, userId });
 
 export const createContact = payload => Contact.create(payload);
 
-export const updateContact = async (contactId, updateData, userId) => {
-    const contact = await Contact.findByIdAndUpdate({ _id: contactId, userId },
+export const updateContact = async (contactId, userId, updateData) => {
+    const contact = await Contact.findOneAndUpdate({ _id: contactId, userId },
         updateData,
         { new: true },
     );
     return contact;
 };
 
-export const deleteContact = (contactId, userId) => Contact.findByIdAndDelete({ _id: contactId, userId });
+export const deleteContact = (contactId, userId) => Contact.findOneAndDelete({ _id: contactId, userId });
