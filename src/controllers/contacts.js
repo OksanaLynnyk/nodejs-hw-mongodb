@@ -1,8 +1,12 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import createHttpError from 'http-errors';
 import { createContact, deleteContact, getAllContacts, getContactById, updateContact } from "../services/contacts.js";
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { sortFields } from '../utils/parseSortParams.js';
+import { env } from "../utils/env.js";
+import { uploadToCloudinary } from "../utils/uploadToCloudinary.js";
 
 export const getContactcsController = async (req, res) => {
     const { perPage, page } = parsePaginationParams(req.query);
@@ -45,8 +49,22 @@ export const getContactController = async (req, res, next) => {
 };
 
 export const createContactController = async (req, res) => {
+    let photo = null;
+
+    if (typeof req.file !== "undefined") {
+        if (env("ENABLE_CLOUDINARY") === "true") {
+            const result = await uploadToCloudinary(req.file.path);
+            await fs.unlink(req.file.path);
+            photo = result.secure_url;
+        } else {
+            await fs.rename(req.file.path, path.resolve("src", "public/photos", req.file.filename));
+            photo = `http://localhost:3000/photos/${req.file.filename}`;
+        }
+    }
+
+
     const userId = req.user._id;
-    const contact = await createContact({...req.body, userId});
+    const contact = await createContact({ ...req.body, userId, photo });
 
     res.status(201).json({
         status: 201,
@@ -56,10 +74,25 @@ export const createContactController = async (req, res) => {
 };
 
 export const patchContactController = async (req, res) => {
+
     const { id } = req.params;
-    const updateData = req.body;
+    const updateData = { ...req.body };
     const userId = req.user._id;
-    const result = await updateContact(id, userId,updateData);
+
+    let photo = null;
+
+    if (typeof req.file !== "undefined") {
+        if (env("ENABLE_CLOUDINARY") === "true") {
+            const result = await uploadToCloudinary(req.file.path);
+            await fs.unlink(req.file.path);
+            photo = result.secure_url;
+        } else {
+            await fs.rename(req.file.path, path.resolve("src", "public/photos", req.file.filename));
+            photo = `http://localhost:3000/photos/${req.file.filename}`;
+        }
+    }
+
+    const result = await updateContact(id, userId, { ...updateData, photo });
 
     if (result === null) {
         throw createHttpError(404, 'Contact not found');

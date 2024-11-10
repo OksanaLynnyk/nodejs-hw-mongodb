@@ -2,10 +2,9 @@ import express from "express";
 import pino from 'pino-http';
 import cors from 'cors';
 import dotenv from "dotenv";
+import path from "node:path";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { notFoundHandler } from "./middlewares/notFoundHandler.js";
-// import contactsRouter from "./routers/contacts.js";
-// import authRoutes from "./routers/auth.js";
 import router from "./routers/index.js";
 import cookieParser from "cookie-parser";
 
@@ -23,7 +22,7 @@ export const setupServer = () => {
             },
         }),
     );
-
+    app.use("/photos", express.static(path.resolve("src", "public/photos")));
     app.use(cookieParser());
     app.use(cors());
     app.use('/', router);
