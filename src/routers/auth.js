@@ -42,7 +42,7 @@ authRoutes.post('/refresh', ctrlWrapper(refreshController));
 authRoutes.post('/logout', ctrlWrapper(logoutController));
 
 authRoutes.post(
-    '/send-reset-password',
+    '/send-reset-email',
     jsonParser,
     validateBody(requestResetEmailSchema),
     ctrlWrapper(requestResetEmailController),
